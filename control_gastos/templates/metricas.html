@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Métricas de Consumo de Gastos</h1>
+
+<div class="semana-nav">
+    <a href="{{ url_for('metricas.index', mes=mes_anterior_param) }}">&larr; Mes anterior</a>
+    <span class="rango-semana">
+        {{ mes_texto }}{% if es_mes_actual %} · día {{ dias_transcurridos }} de {{ dias_mes }}{% endif %}
+    </span>
+    {% if mes_siguiente_param %}
+    <a href="{{ url_for('metricas.index', mes=mes_siguiente_param) }}">Mes siguiente &rarr;</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+</div>
+
+<p class="nota-metricas">
+    El límite de cada categoría se interpreta como su <strong>presupuesto mensual</strong>.
+    Todas las cifras corresponden al mes mostrado.
+</p>
+
+{% for grupo in grupos %}
+<h2>{{ grupo.titulo }}</h2>
+<p class="grupo-desc">{{ grupo.descripcion }}</p>
+<div class="metricas-grid">
+    {% for m in grupo.metricas %}
+    <div class="metrica-card {{ m.estado }}">
+        <div class="metrica-label">{{ m.titulo }}</div>
+        <div class="metrica-valor">{{ m.valor }}</div>
+        <div class="metrica-detalle">{{ m.detalle }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+
+<h2>Consumo por categoría</h2>
+{% if resumen_categorias %}
+<table>
+    <thead>
+        <tr><th>Categoría</th><th>Gastado</th><th>Límite mensual</th><th>Disponible</th><th>Consumo</th></tr>
+    </thead>
+    <tbody>
+        {% for cat in resumen_categorias %}
+        <tr>
+            <td>{{ cat.nombre }}</td>
+            <td>S/ {{ "%.2f"|format(cat.gastado) }}</td>
+            <td>S/ {{ "%.2f"|format(cat.limite) }}</td>
+            <td class="{% if cat.disponible < 0 %}texto-alerta{% endif %}">S/ {{ "%.2f"|format(cat.disponible) }}</td>
+            <td>
+                <div class="barra-contenedor">
+                    <div class="barra-relleno {{ cat.estado }}" style="width: {{ cat.porcentaje }}%;"></div>
+                </div>
+                <span class="barra-texto">{{ "%.1f"|format(cat.porcentaje_real) }}%{% if cat.disponible < 0 %} ¡excedido!{% endif %}</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Todavía no hay categorías registradas.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{% if categoria_editar %}Editar Categoría{% else %}Registrar Categoría{% endif %}</h1>
+<form action="{% if categoria_editar %}{{ url_for('categorias.actualizar', id=categoria_editar.id) }}{% else %}{{ url_for('categorias.guardar') }}{% endif %}" method="POST">
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" name="nombre" value="{{ categoria_editar.nombre if categoria_editar else '' }}" required>
+
+    <label for="limite">Límite de Presupuesto Mensual (S/)</label>
+    <input type="number" id="limite" name="limite" step="0.01" min="0" value="{{ categoria_editar.limite if categoria_editar else '' }}" required>
+
+    <button type="submit">{% if categoria_editar %}Actualizar Categoría{% else %}Guardar Categoría{% endif %}</button>
+    {% if categoria_editar %}
+    <a class="btn-cancelar" href="{{ url_for('categorias.index') }}">Cancelar edición</a>
+    {% endif %}
+</form>
+
+<h2>Categorías registradas</h2>
+{% if categorias %}
+<table>
+    <thead>
+        <tr><th>Nombre</th><th>Límite mensual (S/)</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+        {% for cat in categorias %}
+        <tr>
+            <td>{{ cat.nombre }}</td>
+            <td>{{ "%.2f"|format(cat.limite) }}</td>
+            <td class="acciones">
+                <a class="btn-editar" href="{{ url_for('categorias.editar', id=cat.id) }}">Editar</a>
+                <form action="{{ url_for('categorias.eliminar', id=cat.id) }}" method="POST" onsubmit="return confirm('¿Eliminar la categoría {{ cat.nombre }}?');">
+                    <button type="submit" class="btn-eliminar">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Todavía no hay categorías registradas.</p>
+{% endif %}
+{% endblock %}
