@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Calendario Semanal de Gastos</h1>
+
+<div class="semana-nav">
+    <a href="{{ url_for('gastos.calendario', semana=semana_anterior) }}">&larr; Semana anterior</a>
+    <span class="rango-semana">{{ inicio_semana }} — {{ fin_semana }}</span>
+    <a href="{{ url_for('gastos.calendario', semana=semana_siguiente) }}">Semana siguiente &rarr;</a>
+</div>
+
+<div class="calendario">
+    {% for dia in dias_semana %}
+    <div class="dia-columna {% if dia.es_hoy %}dia-hoy{% endif %}">
+        <h3>{{ dia.nombre }}<span class="fecha-dia">{{ dia.fecha_corta }}</span></h3>
+        {% if dia.gastos %}
+            <ul>
+            {% for g in dia.gastos %}
+                <li>
+                    <strong>{{ g.concepto }}</strong><br>
+                    {{ g.categoria }}<br>
+                    S/ {{ "%.2f"|format(g.monto) }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="sin-gastos">Sin gastos</p>
+        {% endif %}
+        <div class="total-dia">Total: S/ {{ "%.2f"|format(dia.total) }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<p class="total-semana">Total de la semana mostrada: <strong>S/ {{ "%.2f"|format(total_semana_grid) }}</strong></p>
+
+<p><a href="{{ url_for('gastos.index') }}">&larr; Volver al registro de gastos</a></p>
+{% endblock %}
